@@ -7,8 +7,6 @@ Created on Thu Jun  7 15:56:10 2018
 @author: mitch
 """
 
-
-
 #system import
 import os
 from datetime import date
@@ -18,6 +16,9 @@ from bs4 import BeautifulSoup
 import requests
 
 #Plotting
+import matplotlib
+matplotlib.use('Agg') #This is required at this place to ensure it works when
+#launched with no display.
 import matplotlib.pyplot as plt
 
 # Intenet site access variables
@@ -97,7 +98,8 @@ def extract_cotations(index_list, previous_date):
     #If no more recent Trading day then abort
     if previous_date >= da.get_last_date():
         log_print("Pas de nouvelle cotation, arrêt de la procédure")
-        return
+        #return
+    
 
     #Else compute
     df = da.get_data(index_list)
@@ -116,6 +118,7 @@ def extract_cotations(index_list, previous_date):
     syn_df['Synthetic'] = (syn_df['Calendar+1'] + syn_df['Calendar+2'] +\
                           syn_df['Calendar+3'])/3
 
+    #Classement par date descendante utilisée pour les opérations suivantes
     syn_df = syn_df.sort_values('Trading_day', ascending=False)
 
     log_print("Synthetic index ready")
@@ -123,12 +126,15 @@ def extract_cotations(index_list, previous_date):
     #Prix lors de l'appel d'offre
     origin_synthetic = round(syn_df.loc[syn_df['Trading_day'] == '2018-06-06']\
                              ['Synthetic'].item(), 2)
+    
     #Dernier prix disponible a priori le closing de la veille.
-    last_synthetic = round(syn_df.loc[0]['Synthetic'].item(), 2) #Since we sorted we can use it
+    last_synthetic = round(syn_df.iloc[0]['Synthetic'].item(), 2) #Since we sorted we can use it
+    
 
     #Evaluation of price evolution trends.
     tendance = 'BAISSE'
-    previous_synthetic = round(syn_df.loc[1]['Synthetic'].item(), 2)
+    previous_synthetic = round(syn_df.iloc[1]['Synthetic'].item(), 2)
+      
     if last_synthetic > previous_synthetic:
         tendance = 'HAUSSE'
     tendance_pct = round((last_synthetic - previous_synthetic)/previous_synthetic*100, 2)
@@ -151,20 +157,16 @@ def extract_cotations(index_list, previous_date):
     plt.xlabel('Date', fontsize=13)
     plt.ylabel('€/MWh', fontsize=13)
     #Size
-    fig.set_size_inches(8, 5)
+    fig.set_size_inches(10, 6)
     #Annotate
     plt.annotate("Appel d'offre du 6 juin 2018",
                  xy=(date(2018, 6, 6), origin_synthetic), xycoords='data',
                  xytext=(-90, -50), textcoords='offset points', fontsize=10,
                  arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=.2"))
 
-    picture_path = os.path.join(FILE_PATH, 'Data', 'img.jpg')
+    picture_path = os.path.join(FILE_PATH, 'Data', 'img.png')
     fig.savefig(picture_path)
-    plt.show()
-
-
-
-
+    #plt.show()
 
     #Emails sending
     for receiver in RECEIVERS_EMAIL_LIST:
