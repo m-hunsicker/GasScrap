@@ -60,8 +60,7 @@ def fetch_cotations(index_list):
         for elements in cotation_table.thead.find_all("th"):
             product_list.append(elements.string)
         product_list = product_list[1:]
-
-
+        
         #Data extraction
         for row in cotation_table.tbody.find_all('tr'):
             cotation_set = {}
@@ -98,7 +97,7 @@ def extract_cotations(index_list, previous_date):
     #If no more recent Trading day then abort
     if previous_date >= da.get_last_date():
         log_print("Pas de nouvelle cotation, arrêt de la procédure")
-        #return
+        return
     
 
     #Else compute
@@ -157,7 +156,7 @@ def extract_cotations(index_list, previous_date):
     plt.xlabel('Date', fontsize=13)
     plt.ylabel('€/MWh', fontsize=13)
     #Size
-    fig.set_size_inches(10, 6)
+    fig.set_size_inches(9, 6)
     #Annotate
     plt.annotate("Appel d'offre du 6 juin 2018",
                  xy=(date(2018, 6, 6), origin_synthetic), xycoords='data',
@@ -174,6 +173,8 @@ def extract_cotations(index_list, previous_date):
                         f"Evolution prix du gaz: {last_synthetic}€/MWH en {tendance}",
                         texte, picture_path)
     log_print("Emails sent")
+
+
 
 if __name__ == "__main__":
     try:

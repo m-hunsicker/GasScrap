@@ -17,7 +17,8 @@ FILE_PATH = os.path.dirname(os.path.realpath(__file__))
 
 DB_FILE = os.path.join(FILE_PATH, 'Data', 'cotation.db')
 QT = "QUOTES" #Name of quote table
-
+PRODUCTS = {'Season+1','Season+2', 'Season+3', 'Season+4',
+            'Calendar+1', 'Calendar+2', 'Calendar+3', 'Calendar+4'}
 
 def init_database():
     """
@@ -44,24 +45,34 @@ def init_database():
     log_print("DB initialized !")
 
 
+def check_data(data, value):
+    """
+    Check the product type before inserting into the database
+    """
+    if value in data:
+        return data[value]
+    return 'NULL'
+    
+
 
 def insert_data(data):
     """
     Import data
-    """
+    """    
     with sqlite3.connect(DB_FILE, detect_types=sqlite3.PARSE_DECLTYPES|\
                          sqlite3.PARSE_COLNAMES) as connection:
         #Prepare dataType elements.
-        connection.execute(f"INSERT OR IGNORE INTO {QT} VALUES(\'"+ data['trading_day'] +"\',"+\
-                                                    f"\'{data['Gas_index']}\',"+\
-                                                    f"{data['Season+1']},"+\
-                                                    f"{data['Season+2']},"+\
-                                                    f"{data['Season+3']},"+\
-                                                    f"{data['Season+4']},"+\
-                                                    f"{data['Calendar+1']},"+\
-                                                    f"{data['Calendar+2']},"+\
-                                                    f"{data['Calendar+3']},"+\
-                                                    f"{data['Calendar+4']})")
+        connection.execute(f"INSERT OR IGNORE INTO {QT} VALUES(\'"+ 
+                           data['trading_day'] +"\',"+\
+                           f"\'{data['Gas_index']}\',"+\
+                           f"{check_data(data, 'Season+1')},"+\
+                           f"{check_data(data, 'Season+2')},"+\
+                           f"{check_data(data, 'Season+3')},"+\
+                           f"{check_data(data, 'Season+4')},"+\
+                           f"{check_data(data, 'Calendar+1')},"+\
+                           f"{check_data(data, 'Calendar+2')},"+\
+                           f"{check_data(data, 'Calendar+3')},"+\
+                           f"{check_data(data, 'Calendar+4')})")
     connection.commit()
     connection.close()
 
