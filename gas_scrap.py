@@ -60,7 +60,7 @@ def fetch_cotations(index_list):
         for elements in cotation_table.thead.find_all("th"):
             product_list.append(elements.string)
         product_list = product_list[1:]
-        
+
         #Data extraction
         for row in cotation_table.tbody.find_all('tr'):
             cotation_set = {}
@@ -98,7 +98,7 @@ def extract_cotations(index_list, previous_date):
     if previous_date >= da.get_last_date():
         log_print("Pas de nouvelle cotation, arrêt de la procédure")
         return
-    
+
 
     #Else compute
     df = da.get_data(index_list)
@@ -125,15 +125,15 @@ def extract_cotations(index_list, previous_date):
     #Prix lors de l'appel d'offre
     origin_synthetic = round(syn_df.loc[syn_df['Trading_day'] == '2018-06-06']\
                              ['Synthetic'].item(), 2)
-    
+
     #Dernier prix disponible a priori le closing de la veille.
     last_synthetic = round(syn_df.iloc[0]['Synthetic'].item(), 2) #Since we sorted we can use it
-    
+
 
     #Evaluation of price evolution trends.
     tendance = 'BAISSE'
     previous_synthetic = round(syn_df.iloc[1]['Synthetic'].item(), 2)
-      
+
     if last_synthetic > previous_synthetic:
         tendance = 'HAUSSE'
     tendance_pct = round((last_synthetic - previous_synthetic)/previous_synthetic*100, 2)
